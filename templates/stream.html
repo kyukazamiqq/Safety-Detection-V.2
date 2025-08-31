@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOLO Live Stream Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fas fa-camera"></i> YOLO Live Stream Detection</h1>
+            <p>Deteksi real-time menggunakan kamera dengan YOLOv12</p>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Stream Controls -->
+            <div class="stream-controls">
+                <div class="control-card">
+                    <h2><i class="fas fa-sliders-h"></i> Stream Controls</h2>
+                    <div class="control-buttons">
+                        <button class="stream-btn" onclick="startStream()">
+                            <i class="fas fa-play"></i> Start Stream
+                        </button>
+                        <button class="stream-btn stop" onclick="stopStream()" style="display: none;">
+                            <i class="fas fa-stop"></i> Stop Stream
+                        </button>
+                        <a href="/" class="back-btn">
+                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stream Display -->
+            <div class="stream-display">
+                <div class="stream-card">
+                    <h2><i class="fas fa-video"></i> Live Stream</h2>
+                    <div class="stream-container">
+                        <img id="streamImage" src="" alt="Live stream">
+                        <div class="stream-overlay" id="streamOverlay">
+                            <p>Click "Start Stream" to begin live detection</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detection Info -->
+            <div class="detection-info">
+                <div class="info-card">
+                    <h3><i class="fas fa-info-circle"></i> Detection Classes</h3>
+                    <div class="class-list">
+                        {% for class_name in classes %}
+                        <div class="class-item">
+                            <span class="class-dot" style="background-color: rgb({{ colors[class_name][0] }}, {{ colors[class_name][1] }}, {{ colors[class_name][2] }})"></span>
+                            <span class="class-name">{{ class_name }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isStreaming = false;
+
+        function startStream() {
+            if (isStreaming) return;
+            
+            isStreaming = true;
+            const streamImage = document.getElementById('streamImage');
+            const streamOverlay = document.getElementById('streamOverlay');
+            
+            streamImage.style.display = 'block';
+            streamOverlay.style.display = 'none';
+            streamImage.src = '/video_feed';
+            
+            // Show stop button
+            document.querySelector('.stream-btn').style.display = 'none';
+            document.querySelector('.stream-btn.stop').style.display = 'inline-flex';
+        }
+
+        function stopStream() {
+            if (!isStreaming) return;
+            
+            isStreaming = false;
+            const streamImage = document.getElementById('streamImage');
+            const streamOverlay = document.getElementById('streamOverlay');
+            
+            streamImage.style.display = 'none';
+            streamImage.src = '';
+            streamOverlay.style.display = 'block';
+            
+            // Show start button
+            document.querySelector('.stream-btn').style.display = 'inline-flex';
+            document.querySelector('.stream-btn.stop').style.display = 'none';
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', function() {
+            if (isStreaming) {
+                stopStream();
+            }
+        });
+    </script>
+</body>
+</html>

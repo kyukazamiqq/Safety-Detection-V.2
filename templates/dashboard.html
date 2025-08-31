@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOLO Safety Detection Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1><i class="fas fa-shield-alt"></i> YOLO Safety Detection Dashboard</h1>
+            <p>Deteksi keselamatan menggunakan YOLOv12 - 4 Kelas: No Helmet, No Jacket, Safe, Unsafe</p>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Navigation Tabs -->
+            <div class="nav-tabs">
+                <button class="tab-btn active" onclick="switchTab('image')">
+                    <i class="fas fa-image"></i> Image Detection
+                </button>
+                <button class="tab-btn" onclick="switchTab('video')">
+                    <i class="fas fa-video"></i> Video Detection
+                </button>
+                <button class="tab-btn" onclick="switchTab('stream')">
+                    <i class="fas fa-camera"></i> Live Stream
+                </button>
+            </div>
+
+            <!-- Confidence Threshold Section -->
+            <div class="confidence-section">
+                <div class="confidence-card">
+                    <h3><i class="fas fa-sliders-h"></i> Confidence Threshold</h3>
+                    <div class="confidence-controls">
+                        <input type="range" id="confidenceSlider" min="0" max="100" value="50" class="confidence-slider">
+                        <span id="confidenceValue">50%</span>
+                    </div>
+                    <p class="confidence-info">Atur threshold confidence untuk deteksi (0-100%)</p>
+                </div>
+            </div>
+
+            <!-- Image Upload Section -->
+            <div class="upload-section" id="imageTab">
+                <div class="upload-card">
+                    <h2><i class="fas fa-upload"></i> Upload Gambar</h2>
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-content">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Drag & drop gambar di sini atau klik untuk memilih</p>
+                            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                            <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                                Pilih File
+                            </button>
+                        </div>
+                    </div>
+                    <div class="file-info" id="fileInfo" style="display: none;">
+                        <p>File: <span id="fileName"></span></p>
+                        <button class="detect-btn" id="detectBtn" onclick="detectImage()">
+                            <i class="fas fa-search"></i> Deteksi
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video Upload Section -->
+            <div class="upload-section" id="videoTab" style="display: none;">
+                <div class="upload-card">
+                    <h2><i class="fas fa-video"></i> Upload Video</h2>
+                    <div class="upload-area" id="videoUploadArea">
+                        <div class="upload-content">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Drag & drop video di sini atau klik untuk memilih</p>
+                            <p class="file-types">Format: MP4, AVI, MOV, MKV, WMV, FLV</p>
+                            <input type="file" id="videoInput" accept="video/*" style="display: none;">
+                            <button class="upload-btn" onclick="document.getElementById('videoInput').click()">
+                                Pilih Video
+                            </button>
+                        </div>
+                    </div>
+                    <div class="file-info" id="videoFileInfo" style="display: none;">
+                        <p>File: <span id="videoFileName"></span></p>
+                        <button class="detect-btn" id="videoDetectBtn" onclick="detectVideo()">
+                            <i class="fas fa-play"></i> Process Video
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stream Section -->
+            <div class="stream-section" id="streamTab" style="display: none;">
+                <div class="stream-card">
+                    <h2><i class="fas fa-camera"></i> Live Stream Detection</h2>
+                    <div class="stream-content">
+                        <div class="stream-info">
+                            <p>Deteksi real-time menggunakan kamera</p>
+                            <button class="stream-btn" onclick="startStream()">
+                                <i class="fas fa-play"></i> Start Stream
+                            </button>
+                            <button class="stream-btn stop" onclick="stopStream()" style="display: none;">
+                                <i class="fas fa-stop"></i> Stop Stream
+                            </button>
+                        </div>
+                        <div class="stream-container">
+                            <img id="streamImage" src="" alt="Live stream" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <div class="results-card">
+                    <h2><i class="fas fa-chart-bar"></i> Hasil Deteksi</h2>
+                    <div class="results-content">
+                        <div class="image-container">
+                            <img id="resultImage" src="" alt="Hasil deteksi">
+                        </div>
+                        <div class="detection-list">
+                            <h3>Deteksi Ditemukan:</h3>
+                            <div id="detectionList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Section -->
+            <div class="stats-section">
+                <div class="stats-header">
+                    <h2><i class="fas fa-chart-bar"></i> Statistik Deteksi</h2>
+                    <button class="reset-btn" onclick="resetStats()">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+                <div class="stats-grid">
+                    <!-- Total Detections -->
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Total Deteksi</h3>
+                            <p class="stat-number" id="totalDetections">{{ stats.total_detections }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Class Statistics -->
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-list"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Statistik Kelas</h3>
+                            <div class="class-stats">
+                                {% for class_name in classes %}
+                                <div class="class-stat">
+                                    <span class="class-name" style="color: rgb({{ colors[class_name][0] }}, {{ colors[class_name][1] }}, {{ colors[class_name][2] }})">
+                                        {{ class_name }}
+                                    </span>
+                                    <span class="class-count" id="count-{{ class_name.replace(' ', '-') }}">
+                                        {{ stats.class_counts[class_name] }}
+                                    </span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Aktivitas Terbaru</h3>
+                            <div class="recent-activity" id="recentActivity">
+                                {% for activity in stats.recent_detections[-5:] %}
+                                <div class="activity-item">
+                                    <span class="activity-time">{{ activity.timestamp.split('T')[1][:8] }}</span>
+                                    <span class="activity-desc">{{ activity.total }} deteksi</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p>Memproses deteksi...</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
