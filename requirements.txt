@@ -1,5 +1,5 @@
 Flask
-ultralytics
+ultralytics==8.3.186
 opencv-python
 Pillow
 numpy

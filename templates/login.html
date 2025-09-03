@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - PPE Detection JICT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Minimal fallback to avoid FOUC if main css is slow */
+        .auth-card{background:#fff;border-radius:16px;padding:28px;box-shadow:0 15px 40px rgba(0,0,0,0.12)}
+    </style>
+    <meta name="description" content="Login PPE Detection untuk operasional pelabuhan PT. Jakarta International Container Terminal">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-brand">
+            <div class="brand-badge">
+                <i class="fas fa-hard-hat"></i>
+            </div>
+            <div class="brand-text">
+                <h1>PPE Detection</h1>
+                <p>PT. Jakarta International Container Terminal</p>
+            </div>
+        </div>
+
+        <div class="auth-card">
+            <h2 class="auth-title"><i class="fas fa-shield-alt"></i> Login</h2>
+            <p class="auth-subtitle">Pantau kepatuhan APD untuk keselamatan operasional.</p>
+
+            <form class="auth-form" action="{{ url_for('login') }}" method="post">
+                <div class="input-group">
+                    <label for="email"><i class="fas fa-envelope"></i> Email</label>
+                    <input type="text" id="email" name="email" placeholder="nama@jict.co.id" autocomplete="username" required>
+                </div>
+                <div class="input-group">
+                    <label for="password"><i class="fas fa-lock"></i> Kata Sandi</label>
+                    <input type="password" id="password" name="password" placeholder="Kata sandi" autocomplete="current-password" required>
+                </div>
+                <!-- <div class="form-row">
+                    <label class="remember">
+                        <input type="checkbox" id="remember"> Ingat saya
+                    </label>
+                    <a href="#" class="link-muted">Lupa kata sandi?</a>
+                </div> -->
+                <button type="submit" class="auth-btn">
+                    <i class="fas fa-sign-in-alt"></i> Masuk
+                </button>
+            </form>
+
+            <!-- <div class="auth-footer">
+                <a href="/" class="link-primary"><i class="fas fa-arrow-right"></i> Masuk sebagai tamu (lihat dashboard)</a>
+            </div> -->
+        </div>
+
+        <!-- <div class="auth-meta">
+            <div class="meta-item">
+                <i class="fas fa-helmet-safety"></i>
+                <span>Fokus: Helmet & Jacket Compliance</span>
+            </div>
+            <div class="meta-item">
+                <i class="fas fa-industry"></i>
+                <span>Operasional: Pelabuhan Kontainer</span>
+            </div>
+            <div class="meta-item">
+                <i class="fas fa-shield"></i>
+                <span>Model: YOLOv12 PPE</span>
+            </div>
+        </div> -->
+    </div>
+
+    <script></script>
+</body>
+</html>
+

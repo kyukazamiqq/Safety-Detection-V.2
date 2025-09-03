@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_from_directory, Response
+from flask import Flask, render_template, request, jsonify, send_from_directory, Response, session, redirect, url_for
 import os
 import cv2
 import numpy as np
@@ -128,10 +128,33 @@ def update_stats(detections):
 @app.route('/')
 def dashboard():
     """Halaman dashboard utama"""
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
     return render_template('dashboard.html', 
                          classes=CLASSES, 
                          stats=detection_stats,
                          colors=CLASS_COLORS)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Halaman login sederhana (frontend) dan set sesi login"""
+    if request.method == 'POST':
+        # Validasi sederhana: terima jika kedua field diisi
+        username = request.form.get('email') or request.form.get('username')
+        password = request.form.get('password')
+        if username and password:
+            session['logged_in'] = True
+            session['user'] = username
+            return redirect(url_for('dashboard'))
+        # Jika gagal, render ulang dengan pesan sederhana (opsional)
+        return render_template('login.html')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    """Hapus sesi dan kembali ke login"""
+    session.clear()
+    return redirect(url_for('login'))
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -307,6 +330,8 @@ def video_inference():
 @app.route('/stream')
 def stream():
     """Halaman streaming real-time"""
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
     return render_template('stream.html', classes=CLASSES, colors=CLASS_COLORS)
 
 @app.route('/video_feed')
